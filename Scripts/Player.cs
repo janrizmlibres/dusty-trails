@@ -7,10 +7,27 @@ namespace DustyTrails
 	{
 		// Node references
 		private AnimatedSprite2D _animationSprite;
+		private Health _healthBar;
+		private Stamina _staminaBar;
 
 		// Player states
-		[Export] private int Speed = 50;
+		[Export] private int BaseSpeed = 60;
 		private bool _isAttacking = false;
+		private bool _isSprinting = false;
+
+		// Custom signals
+		[Signal]
+		public delegate void HealthUpdatedEventHandler(int health, int maxHealth);
+		[Signal]
+		public delegate void StaminaUpdatedEventHandler(int stamina, int maxStamina);
+
+		// UI variables
+		private double _health = 100;
+		private double _maxHealth = 100;
+		private double _regenHealth = 1;
+		private double _stamina = 100;
+		private double _maxStamina = 100;
+		private double _regenStamina = 5;
 
 		// Direction and animation to be updated throughout game state
 		private Vector2 _savedDirection = new(0, 1); // Only move one spaces
@@ -18,7 +35,32 @@ namespace DustyTrails
 		public override void _Ready()
 		{
 			_animationSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+			_healthBar = GetNode<Health>("UI/HealthBar");
+			_staminaBar = GetNode<Stamina>("UI/StaminaBar");
+
 			_animationSprite.AnimationFinished += OnAnimationSprite2dAnimationFinished;
+			HealthUpdated += _healthBar.UpdateHealthUI;
+			StaminaUpdated += _staminaBar.UpdateStaminaUI;
+		}
+
+		public override void _Process(double delta)
+		{
+			double updatedHealth = Math.Min(_health + _regenHealth * delta, _maxHealth);
+			if (updatedHealth != _health)
+			{
+				_health = updatedHealth;
+				EmitSignal(SignalName.HealthUpdated, _health, _maxHealth);
+			}
+
+			if (!_isSprinting)
+			{
+				double updatedStamina = Math.Min(_stamina + _regenStamina * delta, _maxStamina);
+				if (updatedStamina != _stamina)
+				{
+					_stamina = updatedStamina;
+					EmitSignal(SignalName.StaminaUpdated, _stamina, _maxStamina);
+				}
+			}
 		}
 
 		public override void _PhysicsProcess(double delta)
@@ -28,22 +70,31 @@ namespace DustyTrails
 			// Normalize movement
 			direction = direction.Normalized();
 
+			int speed = BaseSpeed;
+
 			// Sprinting
 			if (Input.IsActionPressed("ui_sprint"))
 			{
-				Speed = 100;
+				_isSprinting = true;
+
+				if (_stamina >= 25)
+				{
+					speed = BaseSpeed + 50;
+					_stamina -= 20.0 * delta;
+					EmitSignal(SignalName.StaminaUpdated, _stamina, _maxStamina);
+				}
 			}
-			else if (Input.IsActionJustReleased("ui_sprint"))
+			else
 			{
-				Speed = 50;
+				_isSprinting = false;
 			}
 
 			// Apply movement if the player is not attacking
-			Vector2 movement = Speed * direction * (float)delta;
+			Velocity = speed * direction;
 			if (!_isAttacking)
 			{
 				PlayerAnimations(direction);
-				MoveAndCollide(movement);
+				MoveAndSlide();
 			}
 		}
 

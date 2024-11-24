@@ -3847,3 +3847,4 @@ tile_set = SubResource("TileSet_46vlo")
 
 [node name="Player" parent="." instance=ExtResource("1_ajs35")]
 position = Vector2(187, 70)
+motion_mode = 1
