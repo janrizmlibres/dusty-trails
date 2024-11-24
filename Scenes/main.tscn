@@ -3846,5 +3846,5 @@ tile_map_data = PackedByteArray("AAADAP3/AAAJAAMAAAADAP7/AAAJAAQAAAADAP//AAAJAAU
 tile_set = SubResource("TileSet_46vlo")
 
 [node name="Player" parent="." instance=ExtResource("1_ajs35")]
-position = Vector2(187, 70)
+position = Vector2(488, 150)
 motion_mode = 1

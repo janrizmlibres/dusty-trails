@@ -113,19 +113,14 @@ namespace DustyTrails
 		{
 			Vector2 normalizedDirection = direction.Normalized();
 
-			if (normalizedDirection.Y > 0) return "down";
-
-			if (normalizedDirection.Y < 0) return "up";
-
-			if (normalizedDirection.X > 0)
+			// Handle vertical movement first
+			if (Math.Abs(normalizedDirection.Y) > Math.Abs(normalizedDirection.X))
 			{
-				_animationSprite.FlipH = false;
-			}
-			else if (normalizedDirection.X < 0)
-			{
-				_animationSprite.FlipH = true;
+				return normalizedDirection.Y > 0 ? "down" : "up";
 			}
 
+			// Handle horizontal movement
+			_animationSprite.FlipH = normalizedDirection.X < 0;
 			return "side";
 		}
 
