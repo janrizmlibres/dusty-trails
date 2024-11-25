@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://b63ngufj8it84"]
+
+[ext_resource type="Script" path="res://Scripts/Pickup.cs" id="1_e6rrw"]
+[ext_resource type="Texture2D" uid="uid://b6wahuhdh6mbg" path="res://Assets/Icons/shard_01i.png" id="2_0freg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vbek8"]
+size = Vector2(17, 16)
+
+[node name="Pickup" type="Area2D"]
+script = ExtResource("1_e6rrw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_vbek8")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_0freg")
