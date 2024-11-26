@@ -1,10 +1,11 @@
-[gd_scene load_steps=16 format=4 uid="uid://cw3tcgnv8iknt"]
+[gd_scene load_steps=17 format=4 uid="uid://cw3tcgnv8iknt"]
 
 [ext_resource type="PackedScene" uid="uid://bdcrqqja4q17k" path="res://Scenes/player.tscn" id="1_ajs35"]
 [ext_resource type="Texture2D" uid="uid://ckx6cfsnq6t2b" path="res://Assets/Atlas.png" id="1_c2lc7"]
 [ext_resource type="Script" path="res://Scripts/Main.cs" id="1_iot74"]
 [ext_resource type="Texture2D" uid="uid://fgjxr4il205f" path="res://Assets/Water.png" id="2_kexvo"]
 [ext_resource type="Texture2D" uid="uid://fqukk3j6s0xu" path="res://Assets/Interior.png" id="3_324c5"]
+[ext_resource type="PackedScene" uid="uid://bs1qvug3yjl6c" path="res://Scenes/enemy.tscn" id="6_c8qvu"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_oa8i4"]
 tile_data = PackedInt32Array(65536, 2162688, 30, 131072, 2162688, 31, 196608, 2162688, 32, 262144, 2162688, 33, 1, 2228224, 29, 65537, 2228224, 30, 131073, 2228224, 31, 196609, 2228224, 32, 262145, 2228224, 33, 327681, 2228224, 34, 2, 2293760, 29, 65538, 2293760, 30, 131074, 2293760, 31, 196610, 2293760, 32, 262146, 2293760, 33, 327682, 2293760, 34, 65539, 2359296, 30, 131075, 2359296, 31, 196611, 2359296, 32, 262147, 2359296, 33)
@@ -3849,6 +3850,8 @@ tile_set = SubResource("TileSet_46vlo")
 
 [node name="Player" parent="." instance=ExtResource("1_ajs35")]
 position = Vector2(488, 150)
-motion_mode = 1
 
 [node name="SpawnedPickups" type="Node2D" parent="."]
+
+[node name="Enemy" parent="." instance=ExtResource("6_c8qvu")]
+position = Vector2(673, 135)
