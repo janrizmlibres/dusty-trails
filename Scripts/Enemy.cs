@@ -23,8 +23,10 @@ namespace DustyTrails
         {
             _player = GetTree().Root.GetNode<Player>("Main/Player");
             _timer = GetNode<Timer>("Timer");
+            GetNode<Area2D>("Area2D").BodyExited += OnBodyExited;
 
             _timer.Timeout += OnTimerTimeout;
+
             _rng.Randomize();
         }
 
@@ -36,7 +38,17 @@ namespace DustyTrails
 
         private KinematicCollision2D HandleMovement(double delta)
         {
-            Velocity = Speed * _direction;
+            if (_collidedWithPlayer)
+            {
+                Vector2 pushDirection = _player.Position.DirectionTo(Position);
+                // _direction = pushDirection * _player.Velocity.Length() * 0.5f * (float)delta;
+                Velocity = pushDirection * _player.Velocity.Length() * 0.5f;
+            }
+            else
+            {
+                Velocity = Speed * _direction;
+            }
+
             return MoveAndCollide(Velocity * (float)delta);
         }
 
@@ -47,6 +59,7 @@ namespace DustyTrails
                 if (_collidedWithPlayer)
                 {
                     _direction = Vector2.Zero;
+                    // _direction = Position.DirectionTo(_player.Position);
                     _collidedWithPlayer = false;
                 }
 
@@ -59,16 +72,13 @@ namespace DustyTrails
             }
             else
             {
-                HandlePlayerCollision(delta);
+                HandlePlayerCollision();
             }
         }
 
-        public void HandlePlayerCollision(double delta)
+        public void HandlePlayerCollision()
         {
             _newDirection = Position.DirectionTo(_player.Position);
-
-            Vector2 pushDirection = _player.Position.DirectionTo(Position);
-            _direction = pushDirection * _player.Velocity.Length() * 0.5f * (float)delta;
 
             _timer.Start(1);
             _collidedWithPlayer = true;
@@ -87,6 +97,15 @@ namespace DustyTrails
             }
 
             _timer.Start(_rng.RandfRange(2, 5));
+        }
+
+        private void OnBodyExited(Node2D body)
+        {
+            if (body is Player)
+            {
+                _direction = Position.DirectionTo(_player.Position);
+                _timer.Start(1);
+            }
         }
 
         private void OnTimerTimeout()
@@ -108,13 +127,13 @@ namespace DustyTrails
             {
                 _direction = Vector2.Zero;
             }
-            // 5% chance of generating new direction for enemy
-            else if (randomDirection < 0.1)
+            // 25% chance of generating new direction for enemy
+            else if (randomDirection < 0.3)
             {
                 _direction = Vector2.Down.Rotated((float)(_rng.Randf() * 2 * Math.PI));
             }
 
-            // 90% chance of maintaining current direction (idle or moving)
+            // 70% chance of maintaining current direction (idle or moving)
         }
     }
 }

@@ -123,7 +123,7 @@ namespace DustyTrails
                 KinematicCollision2D collision = GetSlideCollision(i);
                 if (collision.GetCollider() is Enemy enemy)
                 {
-                    enemy.HandlePlayerCollision(delta);
+                    enemy.HandlePlayerCollision();
                 }
             }
         }
