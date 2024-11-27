@@ -116,14 +116,14 @@ namespace DustyTrails
             {
                 PlayerAnimations(direction);
                 MoveAndSlide();
-            }
 
-            for (int i = 0; i < GetSlideCollisionCount(); i++)
-            {
-                KinematicCollision2D collision = GetSlideCollision(i);
-                if (collision.GetCollider() is Enemy enemy)
+                for (int i = 0; i < GetSlideCollisionCount(); i++)
                 {
-                    enemy.HandlePlayerCollision();
+                    KinematicCollision2D collision = GetSlideCollision(i);
+                    if (collision.GetCollider() is Enemy enemy)
+                    {
+                        enemy.HandlePlayerCollision();
+                    }
                 }
             }
         }

@@ -8,14 +8,20 @@ namespace DustyTrails
     {
         private Player _player;
         private Timer _timer;
+        private AnimatedSprite2D _animationSprite;
 
         [Export] private int Speed = 40;
         [Export] private int ChaseDistance = 100;
+        [Export] private int PushForce = 10;
 
         private bool _collidedWithPlayer = false;
+        private bool _collidedWithEnvironment = false;
+        private bool _playerInCollisionZone = false;
+        private bool _isAttacking = false;
 
         private Vector2 _direction = Vector2.Zero;
-        private Vector2 _newDirection = new(0, 1);
+        private Vector2 _savedDirection = new(0, 1);
+        private Vector2 _pushDirection = Vector2.Zero;
 
         private RandomNumberGenerator _rng = new();
 
@@ -23,8 +29,9 @@ namespace DustyTrails
         {
             _player = GetTree().Root.GetNode<Player>("Main/Player");
             _timer = GetNode<Timer>("Timer");
-            GetNode<Area2D>("Area2D").BodyExited += OnBodyExited;
+            _animationSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 
+            GetNode<Area2D>("Area2D").BodyExited += OnBodyExited;
             _timer.Timeout += OnTimerTimeout;
 
             _rng.Randomize();
@@ -34,15 +41,22 @@ namespace DustyTrails
         {
             KinematicCollision2D collision = HandleMovement(delta);
             HandleCollisions(collision, delta);
+
+            if (!_isAttacking)
+            {
+                EnemyAnimations(_direction);
+            }
         }
 
         private KinematicCollision2D HandleMovement(double delta)
         {
-            if (_collidedWithPlayer)
+            if (_collidedWithEnvironment)
             {
-                Vector2 pushDirection = _player.Position.DirectionTo(Position);
-                // _direction = pushDirection * _player.Velocity.Length() * 0.5f * (float)delta;
-                Velocity = pushDirection * _player.Velocity.Length() * 0.5f;
+                Velocity = _pushDirection * PushForce * (float)delta;
+            }
+            else if (_collidedWithPlayer)
+            {
+                Velocity = _pushDirection * _player.Velocity.Length() * 0.5f;
             }
             else
             {
@@ -59,16 +73,16 @@ namespace DustyTrails
                 if (_collidedWithPlayer)
                 {
                     _direction = Vector2.Zero;
-                    // _direction = Position.DirectionTo(_player.Position);
                     _collidedWithPlayer = false;
                 }
 
+                _collidedWithEnvironment = false;
                 return;
             }
 
             if (collision.GetCollider() is not Player)
             {
-                HandleEnvironmentCollision();
+                HandleEnvironmentCollision(collision.GetNormal());
             }
             else
             {
@@ -78,25 +92,65 @@ namespace DustyTrails
 
         public void HandlePlayerCollision()
         {
-            _newDirection = Position.DirectionTo(_player.Position);
+            _savedDirection = Position.DirectionTo(_player.Position);
 
-            _timer.Start(1);
+            _pushDirection = _player.Position.DirectionTo(Position);
+
+            _timer.Stop();
             _collidedWithPlayer = true;
         }
 
-        private void HandleEnvironmentCollision()
+        private void HandleEnvironmentCollision(Vector2 normal)
         {
-            if (_direction == Vector2.Zero)
-            {
-                _direction = Vector2.Down.Rotated((float)(_rng.Randf() * 2 * Math.PI));
-            }
-            else
+            _pushDirection = normal;
+
+            if (!_playerInCollisionZone)
             {
                 float angle = _rng.RandfRange((float)(Math.PI / 4), (float)(Math.PI / 2));
                 _direction = _direction.Rotated(angle);
             }
 
             _timer.Start(_rng.RandfRange(2, 5));
+            _collidedWithEnvironment = true;
+        }
+
+        private string ReturnedDirection(Vector2 direction)
+        {
+            Vector2 normalizedDirection = direction.Normalized();
+
+            // Handle vertical movement first
+            if (Math.Abs(normalizedDirection.Y) > Math.Abs(normalizedDirection.X))
+            {
+                return normalizedDirection.Y > 0 ? "down" : "up";
+            }
+
+            // Handle horizontal movement
+            _animationSprite.FlipH = normalizedDirection.X < 0;
+            return "side";
+        }
+
+        private void EnemyAnimations(Vector2 direction)
+        {
+            if (direction != Vector2.Zero)
+            {
+                // Only update the direction if we are moving
+                _savedDirection = direction;
+                string animation = "walk_" + ReturnedDirection(_savedDirection);
+                _animationSprite.Play(animation);
+            }
+            else
+            {
+                string animation = "idle_" + ReturnedDirection(_savedDirection);
+                _animationSprite.Play(animation);
+            }
+        }
+
+        private void OnBodyEntered(Node2D body)
+        {
+            if (body is Player)
+            {
+                _playerInCollisionZone = true;
+            }
         }
 
         private void OnBodyExited(Node2D body)
@@ -104,7 +158,16 @@ namespace DustyTrails
             if (body is Player)
             {
                 _direction = Position.DirectionTo(_player.Position);
+                _playerInCollisionZone = false;
                 _timer.Start(1);
+            }
+        }
+
+        private void SyncNewDirection()
+        {
+            if (_direction != Vector2.Zero)
+            {
+                _savedDirection = _direction.Normalized();
             }
         }
 
@@ -117,6 +180,7 @@ namespace DustyTrails
             if (distanceVector.Length() <= ChaseDistance)
             {
                 _direction = distanceVector.Normalized();
+                SyncNewDirection();
                 return;
             }
 
@@ -134,6 +198,7 @@ namespace DustyTrails
             }
 
             // 70% chance of maintaining current direction (idle or moving)
+            SyncNewDirection();
         }
     }
 }
