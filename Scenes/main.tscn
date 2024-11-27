@@ -3854,4 +3854,4 @@ position = Vector2(488, 150)
 [node name="SpawnedPickups" type="Node2D" parent="."]
 
 [node name="Enemy" parent="." instance=ExtResource("6_c8qvu")]
-position = Vector2(673, 135)
+position = Vector2(533, 52)

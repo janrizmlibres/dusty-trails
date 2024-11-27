@@ -40,7 +40,7 @@ namespace DustyTrails
         public override void _PhysicsProcess(double delta)
         {
             KinematicCollision2D collision = HandleMovement(delta);
-            HandleCollisions(collision, delta);
+            HandleCollisions(collision);
 
             if (!_isAttacking)
             {
@@ -66,7 +66,7 @@ namespace DustyTrails
             return MoveAndCollide(Velocity * (float)delta);
         }
 
-        private void HandleCollisions(KinematicCollision2D collision, double delta)
+        private void HandleCollisions(KinematicCollision2D collision)
         {
             if (collision == null)
             {

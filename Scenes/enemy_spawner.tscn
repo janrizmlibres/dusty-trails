@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dpj12guhg1ul0"]
+
+[ext_resource type="Script" path="res://Scripts/EnemySpawner.cs" id="1_oopgp"]
+
+[node name="EnemySpawner" type="Node2D"]
+script = ExtResource("1_oopgp")
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true
+
+[node name="SpawnedEnemies" type="Node2D" parent="."]

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-using Pickups = DustyTrails.Scripts.Global.Pickups;
+using PickupType = DustyTrails.Scripts.Global.PickupType;
 
 namespace DustyTrails
 {
@@ -11,7 +11,7 @@ namespace DustyTrails
         // Node refs
         private Sprite2D _sprite;
 
-        [Export] public Pickups Item { get; set; }
+        [Export] public PickupType Item { get; set; }
 
         private Texture2D _ammoTexture = GD.Load<Texture2D>("res://Assets/Icons/shard_01i.png");
         private Texture2D _staminaTexture = GD.Load<Texture2D>("res://Assets/Icons/potion_02b.png");
@@ -34,9 +34,9 @@ namespace DustyTrails
 
         private Texture2D GetTexture()
         {
-            if (Item == Pickups.Ammo) return _ammoTexture;
-            if (Item == Pickups.Stamina) return _staminaTexture;
-            if (Item == Pickups.Health) return _healthTexture;
+            if (Item == PickupType.Ammo) return _ammoTexture;
+            if (Item == PickupType.Stamina) return _staminaTexture;
+            if (Item == PickupType.Health) return _healthTexture;
             throw new InvalidOperationException("Invalid pickup item type.");
         }
 

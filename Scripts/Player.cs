@@ -189,21 +189,21 @@ namespace DustyTrails
             }
         }
 
-        public void AddPickup(Global.Pickups item)
+        public void AddPickup(Global.PickupType item)
         {
-            if (item == Global.Pickups.Ammo)
+            if (item == Global.PickupType.Ammo)
             {
                 AmmoPickup += 3;
                 EmitSignal(SignalName.AmmoPickupsUpdated, AmmoPickup);
             }
 
-            if (item == Global.Pickups.Health)
+            if (item == Global.PickupType.Health)
             {
                 HealthPickup += 1;
                 EmitSignal(SignalName.HealthPickupsUpdated, HealthPickup);
             }
 
-            if (item == Global.Pickups.Stamina)
+            if (item == Global.PickupType.Stamina)
             {
                 StaminaPickup += 1;
                 EmitSignal(SignalName.StaminaPickupsUpdated, StaminaPickup);
